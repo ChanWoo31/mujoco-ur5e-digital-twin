@@ -1,0 +1,54 @@
+<mujoco>
+    <compiler angle="degree"/>
+    <visual>
+        <headlight ambient="0.5 0.5 0.5"/>
+    </visual>
+    <asset>
+        <material name="white" rgba="1 1 1 1"/>
+    </asset>
+    <option timestep="0.001" gravity="0 0 0"/>
+    <worldbody>
+        <light diffuse=".5 .5 .5" pos="0 0 3" dir="0 0 -1"/>
+
+        <geom name="Floor" type="plane" size="0 0 0.1" rgba="1 1 1 1"/>
+        <!-- <geom name="Torso" type="box" pos="0 0 1" size="0.1 0.1 1" rgba="0.7 0.7 0 1"/>
+        <geom name="Shoulder" type="cylinder" pos="0.3 0 2" euler="0 90 0" size="0.1 0.4" rgba="0.7 0.7 0.7 1"/> -->
+
+        <body name="A" pos="0 0 0.2" euler="0 0 0">
+            <inertial mass="40" pos="0 0 0" diaginertia="0.00005 0.00005 0.00005"/>
+            <joint name="A_j" pos="0 0 0" type="hinge" axis="0 1 0"/>
+            <geom type="sphere" pos="0 0 0.2" size="0.1" rgba="0 0.4 0 1"/>
+            <geom type="box" pos="0.4 0 0.2" size="0.3 0.1 0.1" rgba="0.4 0 0 1" contype="0" conaffinity="0"/>
+
+            <body name="B" pos="0.8 0 0.2" euler="0 0 0">
+                <inertial mass="20" pos="0 0 0" diaginertia="0.00005 0.00005 0.00005"/>
+                <joint name="B_j" pos="0 0 0" type="hinge" axis="0 1 0"/>
+                <geom type="sphere" pos="0 0 0" size="0.1" rgba="0 0.4 0 1" contype="0" conaffinity="0"/>
+                <geom type="box" pos="0.4 0 0" size="0.3 0.1 0.1" rgba="0.4 0 0 1" contype="0" conaffinity="0"/>
+                <!-- <site name="FTsensor" type="cylinder" pos="0.7 0 0" size="0.1 0.05" rgba="1 0 0 1"/> -->
+
+                <body name="C" pos="0.8 0 0.0" euler="0 0 0">
+                    <inertial mass="10" pos="0 0 0" diaginertia="0.00005 0.00005 0.00005"/>
+                    <joint name="C_j" pos="0 0 0" type="hinge" axis="0 1 0"/>
+                    <geom type="sphere" pos="0 0 0" size="0.1" rgba="0 0.4 0 1"/>
+                    <geom type="box" pos="0.4 0 0" size="0.3 0.1 0.1" rgba="0.4 0 0 1" contype="0" conaffinity="0"/>
+                    
+                    <body name="D" pos="0.8 0 0.0" euler="0 0 0">
+                        <inertial mass="10" pos="0 0 0" diaginertia="0.00005 0.00005 0.00005"/>
+                        <joint name="D_j" pos="0 0 0" type="hinge" axis="0 1 0"/>
+                        <geom type="sphere" pos="0 0 0" size="0.1" rgba="0 0.4 0 1"/>
+                        <geom type="box" pos="0.4 0 0" size="0.3 0.1 0.1" rgba="0.4 0 0 1"/>
+                        <site name="FTsensor" type="cylinder" pos="0.8 0 0" size="0.1 0.05" rgba="1 0 0 1"/>
+                </body>
+                </body>
+            </body>
+        </body>
+
+    </worldbody>
+    <actuator>
+        <motor name="J1" ctrllimited="true" ctrlrange="-90 90" gear="1 0 0 0 0 0" joint="A_j"/>
+        <motor name="J2" ctrllimited="true" ctrlrange="-150 150" gear="1 0 0 0 0 0" joint="B_j"/>
+        <motor name="J3" ctrllimited="true" ctrlrange="-150 150" gear="1 0 0 0 0 0" joint="C_j"/>
+        <motor name="J4" ctrllimited="true" ctrlrange="-150 150" gear="1 0 0 0 0 0" joint="D_j"/>
+    </actuator>
+</mujoco>
