@@ -58,9 +58,10 @@ class Ur5eRun(Node):
         self.x_current = self.forward_kinematic(self.q_current, self.d, self.a, self.alpha)
         delta_x = self.x_target - self.x_current
         jacobian_matrix = self.get_jacobian(self.q_current, self.d, self.a, self.alpha)
+        jacob_pose_matrix = jacobian_matrix[:3,:6]
 
-        j_inv = np.linalg.pinv(jacobian_matrix)
-        delta_q = j_inv @ delta_x
+        j_inv = np.linalg.pinv(jacob_pose_matrix)
+        delta_q = j_inv @ delta_x[:3, 3]
 
         self.q_new = self.q_current + delta_q
         

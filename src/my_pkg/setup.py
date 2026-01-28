@@ -26,7 +26,8 @@ setup(
         'console_scripts': [
             'dynamixel_val = my_pkg.dynamixel_val:main',
             'ur5e_run = my_pkg.ur5e_run:main',
-            'jacobian_ur5e_run = my_pkg.jacobian_ur5e_run:main',
+            'jacobian_ur5e_run_without_orientation = my_pkg.jacobian_ur5e_run_without_orientation:main',
+            'jacobian_ur5e_run_with_orientation = my_pkg.jacobian_ur5e_run_with_orientation:main',
         ],
     },
 )
