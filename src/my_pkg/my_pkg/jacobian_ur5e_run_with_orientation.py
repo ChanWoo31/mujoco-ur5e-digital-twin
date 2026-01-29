@@ -3,6 +3,7 @@
 import time
 import os
 import numpy as np
+from scipy.spatial.transform import Rotation as R
 
 import rclpy
 from rclpy.node import Node
@@ -58,13 +59,22 @@ class Ur5eRun(Node):
         delta_x_1d = np.zeros(6)
         kp = 0.5
         ko = 0.1
+        dt = 0.002
 
         self.q_current = self.d_mujoco.qpos[:6]
         self.x_current = self.forward_kinematic(self.q_current, self.d, self.a, self.alpha)
         
         error_position = self.x_target[:3, 3] - self.x_current[:3, 3]
         delta_x_1d[:3] = np.transpose(kp * error_position)
-        error_orientation = 0.5 * (np.cross(self.x_current[:3, 0], self.x_target[:3, 0]) + np.cross(self.x_current[:3, 1], self.x_target[:3, 1]) + np.cross(self.x_current[:3, 2], self.x_target[:3, 2]))
+
+        # scipy 이용해서 쿼터니언 구하기 (기본값: [x, y, z, w] 순서.)
+        rot_mat_target = R.from_matrix(self.x_target[:3, :3])
+        rot_mat_current = R.from_matrix(self.x_current[:3, :3])
+        quat_target = rot_mat_target.as_quat()
+        quat_current = rot_mat_current.as_quat()
+
+
+        error_orientation = quat_current[3] * quat_target[:3] - quat_target[3] * quat_current[:3] - np.cross(quat_target[:3], quat_current[:3])
         delta_x_1d[3:6] = np.transpose(ko * error_orientation)
 
         delta_x_1d_trans = np.transpose(delta_x_1d)
@@ -72,7 +82,7 @@ class Ur5eRun(Node):
         j_inv = np.linalg.pinv(jacobian_matrix)
         delta_q = j_inv @ delta_x_1d_trans
 
-        self.q_new = self.q_current + delta_q
+        self.q_new = self.q_current + delta_q * dt
 
     def forward_kinematic(self, theta, d, a, alpha):
         T = np.eye(4)
