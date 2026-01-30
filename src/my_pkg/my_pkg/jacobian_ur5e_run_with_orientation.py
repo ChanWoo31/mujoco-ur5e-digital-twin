@@ -7,7 +7,7 @@ from scipy.spatial.transform import Rotation as R
 
 import rclpy
 from rclpy.node import Node
-from std_msgs.msg import Int32MultiArray
+from std_msgs.msg import UInt32MultiArray
 
 import mujoco
 import mujoco.viewer
@@ -22,7 +22,7 @@ def deg2rad(x):
 class Ur5eRun(Node):
     def __init__(self):
         super().__init__('Ur5e_Run')
-        self.ur5e_run = self.create_subscription(Int32MultiArray, 'topic', self.subscribe_topic, 10)
+        self.ur5e_run = self.create_subscription(UInt32MultiArray, 'topic', self.subscribe_topic, 10)
         
         
         self.d = [0.1625, 0, 0, 0.1333, 0.0997, 0.0996]
@@ -57,9 +57,10 @@ class Ur5eRun(Node):
         
     def control_step(self):
         delta_x_1d = np.zeros(6)
-        kp = 0.5
-        ko = 0.1
-        dt = 0.002
+        kp = 1
+        ko = 1
+        epsilon = 0.02
+        damping_factor_max = 0.01
 
         self.q_current = self.d_mujoco.qpos[:6]
         self.x_current = self.forward_kinematic(self.q_current, self.d, self.a, self.alpha)
@@ -73,16 +74,28 @@ class Ur5eRun(Node):
         quat_target = rot_mat_target.as_quat()
         quat_current = rot_mat_current.as_quat()
 
-
+        if np.dot(quat_target, quat_current) < 0:
+            quat_current = -quat_current
+        
         error_orientation = quat_current[3] * quat_target[:3] - quat_target[3] * quat_current[:3] - np.cross(quat_target[:3], quat_current[:3])
         delta_x_1d[3:6] = np.transpose(ko * error_orientation)
 
         delta_x_1d_trans = np.transpose(delta_x_1d)
         jacobian_matrix = self.get_jacobian(self.q_current, self.d, self.a, self.alpha)
-        j_inv = np.linalg.pinv(jacobian_matrix)
-        delta_q = j_inv @ delta_x_1d_trans
+        # j_inv = np.linalg.pinv(jacobian_matrix)
+        # delta_q = j_inv @ delta_x_1d_trans
 
-        self.q_new = self.q_current + delta_q * dt
+        # damped least squares를 추가. (계속 휘릭휘릭 튀는 현상이 특이점 때문인거 같아서.)
+        U, sigma, Vt = np.linalg.svd(jacobian_matrix)
+
+        if sigma[-1] >= epsilon:
+            damping_factor = 0
+        else:
+            damping_factor = damping_factor_max * np.sqrt(1 - (sigma[-1] / epsilon)**2)
+
+        delta_q = np.transpose(jacobian_matrix) @ np.linalg.inv(jacobian_matrix @ np.transpose(jacobian_matrix) + (damping_factor**2) * np.eye(6)) @ delta_x_1d_trans
+
+        self.q_new = self.q_current + delta_q
 
     def forward_kinematic(self, theta, d, a, alpha):
         T = np.eye(4)

@@ -2,12 +2,12 @@ from dynamixel_sdk import *
 import numpy as np
 import rclpy
 from rclpy.node import Node
-from std_msgs.msg import Int32MultiArray
+from std_msgs.msg import UInt32MultiArray
 
 class DynamixelVal(Node):
     def __init__(self):
         super().__init__('dynamixel_val')
-        self.publisher_ = self.create_publisher(Int32MultiArray, 'topic', 10)
+        self.publisher_ = self.create_publisher(UInt32MultiArray, 'topic', 10)
         timer_period = 0.1
         self.timer = self.create_timer(timer_period, self.read_motor_position)
 
@@ -52,7 +52,7 @@ class DynamixelVal(Node):
     
     
     def read_motor_position(self):
-        msg = Int32MultiArray()
+        msg = UInt32MultiArray()
         msg.data = [0, 0, 0, 0, 0, 0]
 
         
