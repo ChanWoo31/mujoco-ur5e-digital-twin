@@ -13,7 +13,7 @@ import mujoco
 import mujoco.viewer
 
 home_dir = os.path.expanduser("~")
-xml_path = os.path.join(home_dir, 'mujoco_menagerie/universal_robots_ur5e/scene.xml')
+xml_path = os.path.join(home_dir, 'mujoco_menagerie/universal_robots_ur5e/scene_motor.xml')
 
 def deg2rad(x):
     y = x * np.pi / 180
