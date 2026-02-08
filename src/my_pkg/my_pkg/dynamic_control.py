@@ -147,28 +147,7 @@ class Ur5eRun(Node):
              [0, np.sin(alpha), np.cos(alpha), d],
              [0, 0, 0, 1]])
         return T
-        
-    def rotation_matrix_to_euler_angles(self, R):
-        assert(R.shape ==(3,3))
-
-        if R[2,0] != 1 and R[2, 0] != -1:
-            theta1 = -np.arcsin(R[2, 0])
-            theta2 = np.pi - theta1
-            psi1 = np.arctan2(R[2, 1] / np.cos(theta1), R[2, 2] / np.cos(theta1))
-            psi2 = np.arctan2(R[2, 1] / np.cos(theta2), R[2, 2] / np.cos(theta2))
-            phi1 = np.arctan2(R[1, 0] / np.cos(theta1), R[0, 0] / np.cos(theta1))
-            phi2 = np.arctan2(R[1, 0] / np.cos(theta2), R[0, 0] / np.cos(theta2))
-            return (psi1, theta1, phi1), (psi2, theta2, phi2)
-        else:
-            phi = 0
-            if R[2, 0] == -1:
-                theta = np.pi / 2
-                psi = phi + np.arctan2(R[0, 1], R[0, 2])
-            else:
-                theta = -np.pi / 2
-                psi = -phi + np.arctan2(-R[0, 1], -R[0, 2])
-            return  (psi, theta, phi), (None, None, None)
-
+     
 def main():
     rclpy.init()
     node=Ur5eRun()
